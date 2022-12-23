@@ -1,10 +1,11 @@
 {
-	"id": "web-browser",
-	"name": "Web Browser",
-	"version": "0.0.3-beta",
-	"minAppVersion": "1.0.0",
+	"id": "bifrost",
+	"name": "Bifröst",
+	"version": "0.1.0-beta",
+	"minAppVersion": "1.1.0",
 	"description": "Lets you browse the web within Obsidian.",
 	"author": "Dion Tryban (Trikzon)",
 	"authorUrl": "https://github.com/Trikzon",
+    "fundingUrl": "https://ko-fi.com/Trikzon",
 	"isDesktopOnly": true
 }

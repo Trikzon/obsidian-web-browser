@@ -1,63 +1,66 @@
-import { EventRef, ItemView, Notice, Plugin } from "obsidian";
-import { HeaderBar } from "./header_bar";
-import { FunctionHooks } from "./hooks";
-import { WebBrowserView, WEB_BROWSER_VIEW_ID } from "./web_browser_view";
-import { HTML_FILE_EXTENSIONS, WEB_BROWSER_FILE_VIEW_ID, WebBrowserFileView } from "./web_browser_file_view";
+/*
+ * This file is part of obsidian-bifrost. (https://github.com/trikzon/obsidian-bifrost)
+ * Copyright (C) 2022 Dion Tryban (aka Trikzon)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+import { Plugin } from "obsidian";
+import { BIFROST_VIEW_TYPE, BifrostView } from "./bifrost_view";
+import { BifrostSettings, BifrostSettingTab, DEFAULT_SETTINGS } from "./settings";
 
-export default class MyPlugin extends Plugin {
-	private onLayoutChangeEventRef: EventRef;
+export default class BifrostPlugin extends Plugin {
+    settings: BifrostSettings;
+
+    static get(): BifrostPlugin {
+        return app.plugins.plugins["bifrost"];
+    }
 
 	async onload() {
-		await this.loadSettings();
+        await this.loadSettings();
+        this.addSettingTab(new BifrostSettingTab(app, this));
 
-		this.registerView(WEB_BROWSER_VIEW_ID, (leaf) => new WebBrowserView(leaf));
+        // TODO: Support Chrome extensions
+        // const path = "/Users/diontryban/Library/Mobile Documents/com~apple~CloudDocs/Documents/Projects/Dev Vault/.obsidian/plugins/bifrost-browser/extensions/darkreader-chrome-mv3"
+        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // require("electron").remote.session.defaultSession.loadExtension(path, { allowFileAccess: true }).then(({ id }: { string }) => {
+        //     this.loadedExtensions.push(id);
+        //     console.log("Loaded chrome extension with id: " + id);
+        // });
 
-		// Feature to support html/htm files.
-		this.registerView(WEB_BROWSER_FILE_VIEW_ID, (leaf) => new WebBrowserFileView(leaf));
-
-		try {
-			this.registerExtensions(HTML_FILE_EXTENSIONS, WEB_BROWSER_FILE_VIEW_ID);
-		} catch (error) {
-			new Notice(`File extensions ${HTML_FILE_EXTENSIONS} had been registered by other plugin!`);
-		}
-
-		FunctionHooks.onload();
-
-		// Add header bar to "New tab" view.
-		this.onLayoutChangeEventRef = this.app.workspace.on("layout-change", () => {
-			var activeView = this.app.workspace.getActiveViewOfType(ItemView);
-			if (activeView) {
-				// Check if the view is a "New tab" view. I don't think this class is used elsewhere. I sure hope not.
-				if (activeView.contentEl.children[0].hasClass("empty-state")) {
-					// Check if the "New tab" view has already been processed and has a header bar already.
-					if (!activeView.headerEl.children[2].hasClass("web-browser-header-bar")) {
-						var headerBar = new HeaderBar(activeView.headerEl.children[2]);
-						// Focus on current inputEl
-						headerBar.focus();
-						headerBar.addOnSearchBarEnterListener((url: string) => {
-							WebBrowserView.spawnWebBrowserView(false, { url });
-						});
-					}
-				}
-			}
-		});
+        this.registerView(BIFROST_VIEW_TYPE, (leaf) => new BifrostView(leaf));
+        this.addCommand({
+            id: "test",
+            name: "Test",
+            callback: () => {
+                BifrostView.spawnBifrostView(false);
+            }
+        })
 	}
 
-	onunload() {
-		this.app.workspace.detachLeavesOfType(WEB_BROWSER_VIEW_ID);
-		FunctionHooks.onunload();
-		this.app.workspace.offref(this.onLayoutChangeEventRef);
+	onunload() { }
 
-		// Clean up header bar added to "New tab" views when plugin is disabled.
-		var searchBars = document.getElementsByClassName("web-browser-search-bar");
-		while (searchBars.length > 0) {
-			searchBars[0].parentElement?.removeChild(searchBars[0]);
-		}
-	}
+    async loadSettings() {
+        this.settings = Object.assign(
+            {},
+            DEFAULT_SETTINGS,
+            await this.loadData()
+        );
+        await this.saveSettings();
+    }
 
-	async loadSettings() {
-	}
-
-	async saveSettings() {
-	}
+    async saveSettings() {
+        await this.saveData(this.settings);
+    }
 }

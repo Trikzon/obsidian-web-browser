@@ -1,6 +1,6 @@
 {
-	"name": "obsidian-web-browser",
-	"version": "0.0.1",
+	"name": "obsidian-bifrost",
+	"version": "0.1.0",
 	"description": "Lets you browse the web within Obsidian.",
 	"main": "main.js",
 	"scripts": {
@@ -10,13 +10,13 @@
 	},
 	"keywords": [],
 	"author": "Dion Tryban (Trikzon)",
-	"license": "MIT",
+	"license": "GPL-3.0-or-later",
 	"devDependencies": {
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
-		"electron": "^21.0.1",
+		"electron": "^21.3.3",
 		"esbuild": "0.14.47",
 		"obsidian": "latest",
 		"tslib": "2.4.0",
