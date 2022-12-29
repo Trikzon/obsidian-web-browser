@@ -47,7 +47,7 @@ export default class BifrostPlugin extends Plugin {
             id: "test",
             name: "Test",
             callback: () => {
-                WebView.spawnBifrostView(false);
+                WebView.spawn(false, { url: this.settings.url });
             }
         })
 	}

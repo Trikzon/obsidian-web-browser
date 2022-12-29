@@ -12,11 +12,11 @@
 	"author": "Dion Tryban (Trikzon)",
 	"license": "GPL-3.0-or-later",
 	"devDependencies": {
+		"@electron/remote": "^2.0.9",
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
-		"electron": "^21.3.3",
 		"esbuild": "0.14.47",
 		"obsidian": "latest",
 		"tslib": "2.4.0",

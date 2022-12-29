@@ -15,20 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import BifrostPlugin from "../main";
 import WidgetBar from "../widgets/widget_bar";
 import RenamableItemView from "./renamable_item_view";
 import { Navigable, NavigatedCallback } from "./navigable";
+import { webContents } from "@electron/remote";
+import { ViewStateResult } from "obsidian";
 
 export const WEB_VIEW_TYPE = "bifrost-web-view";
+
+export interface WebViewState {
+    url: string
+}
 
 export class WebView extends RenamableItemView implements Navigable {
     private readonly navigatedCallbacks: Array<NavigatedCallback> = new Array<NavigatedCallback>();
     private webviewEl: Electron.WebviewTag;
     private widgetBar: WidgetBar;
 
-    static async spawnBifrostView(newLeaf: boolean) {
-        await app.workspace.getLeaf(newLeaf).setViewState({ type: WEB_VIEW_TYPE });
+    static async spawn(newLeaf: boolean, state: WebViewState) {
+        await app.workspace.getLeaf(newLeaf).setViewState({ type: WEB_VIEW_TYPE, active: true, state });
     }
 
     async onOpen() {
@@ -41,14 +46,6 @@ export class WebView extends RenamableItemView implements Navigable {
 
         this.widgetBar = new WidgetBar(this);
 
-        this.navigate(BifrostPlugin.get().settings.url, true);
-
-        this.webviewEl.addEventListener("dom-ready", (_: Event) => {
-            this.onDomReady();
-        });
-    }
-
-    private onDomReady() {
         this.webviewEl.addEventListener("page-title-updated", (event: Electron.PageTitleUpdatedEvent) => {
             this.rename(event.title);
         });
@@ -58,6 +55,23 @@ export class WebView extends RenamableItemView implements Navigable {
         this.webviewEl.addEventListener("did-navigate-in-page", (event: Electron.DidNavigateInPageEvent) => {
             this.navigate(event.url, false);
         });
+        this.webviewEl.addEventListener("dom-ready", (_: Event) => {
+            const contents = webContents.fromId(this.webviewEl.getWebContentsId());
+
+            contents.setWindowOpenHandler((details: Electron.HandlerDetails) => {
+                WebView.spawn(true, { url: details.url });
+
+                return { action: "deny" };
+            })
+        });
+    }
+
+    async setState(state: WebViewState, result: ViewStateResult) {
+        this.navigate(state.url, true);
+    }
+
+    getState(): WebViewState {
+        return { url: this.webviewEl.src };
     }
 
     getViewType(): string {
