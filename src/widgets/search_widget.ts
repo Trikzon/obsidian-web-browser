@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import Widget from "./widget";
+import { isNavigable, Navigable } from "../views/navigable";
 
 export default class SearchWidget extends Widget {
     private inputEl: HTMLInputElement;
@@ -25,6 +26,20 @@ export default class SearchWidget extends Widget {
         this.inputEl.addClass("bifrost-search-widget");
         this.inputEl.type = "text";
         this.inputEl.placeholder = "Search with DuckDuckGo or enter address";
+
+        if (isNavigable(this.view)) {
+            const navigable: Navigable = this.view;
+
+            this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
+                if (event.key === "Enter") {
+                    navigable.navigate(this.inputEl.value, true);
+                }
+            }, false);
+
+            navigable.on("navigated", (url: string) => {
+                this.inputEl.value = url;
+            });
+        }
 
         return this.inputEl;
     }

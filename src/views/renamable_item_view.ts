@@ -27,7 +27,6 @@ export default abstract class RenamableItemView extends ItemView {
 
     public rename(displayName: string) {
         this.displayName = displayName;
-        console.log(this.leaf);
         this.leaf.tabHeaderInnerTitleEl.innerText = displayName;
     }
 

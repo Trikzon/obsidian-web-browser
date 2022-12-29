@@ -22,7 +22,7 @@ import SearchWidget from "./search_widget";
 export default class WidgetBar {
     private readonly view: View;
     private readonly widgetBarEl: HTMLDivElement;
-    private readonly widgets: Array<Widget>;
+    private readonly widgets: Array<Widget> = new Array<Widget>();
 
     constructor(view: View) {
         this.view = view;
@@ -30,8 +30,6 @@ export default class WidgetBar {
         this.widgetBarEl = view.headerEl.find(".view-header-title-container") as HTMLDivElement;
         this.widgetBarEl.empty();
         this.widgetBarEl.addClass("bifrost-widget-bar");
-
-        this.widgets = new Array<Widget>();
 
         this.addWidgets();
         this.registerWidgets();

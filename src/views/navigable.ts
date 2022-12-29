@@ -16,4 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/// <reference types="electron" />
+export type NavigatedCallback = (url: string) => void;
+
+export interface Navigable {
+    navigate(url: string, updateWebview: boolean): void;
+    on(name: "navigated", callback: NavigatedCallback): void;
+}
+
+export function isNavigable(instance: any): instance is Navigable {
+    try {
+        return "navigate" in instance && typeof instance.navigate === "function"
+            && "on" in instance && typeof instance.on === "function";
+    } catch { // If instance is a primitive type, it will cause an error.
+        return false;
+    }
+}

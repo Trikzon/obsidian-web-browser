@@ -18,10 +18,12 @@
 import BifrostPlugin from "../main";
 import WidgetBar from "../widgets/widget_bar";
 import RenamableItemView from "./renamable_item_view";
+import { Navigable, NavigatedCallback } from "./navigable";
 
 export const WEB_VIEW_TYPE = "bifrost-web-view";
 
-export class WebView extends RenamableItemView {
+export class WebView extends RenamableItemView implements Navigable {
+    private readonly navigatedCallbacks: Array<NavigatedCallback> = new Array<NavigatedCallback>();
     private webviewEl: Electron.WebviewTag;
     private widgetBar: WidgetBar;
 
@@ -37,16 +39,42 @@ export class WebView extends RenamableItemView {
         this.webviewEl.addClass("bifrost-webview");
         this.contentEl.appendChild(this.webviewEl);
 
-        this.webviewEl.setAttribute("src", BifrostPlugin.get().settings.url);
+        this.widgetBar = new WidgetBar(this);
 
+        this.navigate(BifrostPlugin.get().settings.url, true);
+
+        this.webviewEl.addEventListener("dom-ready", (_: Event) => {
+            this.onDomReady();
+        });
+    }
+
+    private onDomReady() {
         this.webviewEl.addEventListener("page-title-updated", (event: Electron.PageTitleUpdatedEvent) => {
             this.rename(event.title);
         });
-
-        this.widgetBar = new WidgetBar(this);
+        this.webviewEl.addEventListener("will-navigate", (event: Electron.WillNavigateEvent) => {
+            this.navigate(event.url, false);
+        });
+        this.webviewEl.addEventListener("did-navigate-in-page", (event: Electron.DidNavigateInPageEvent) => {
+            this.navigate(event.url, false);
+        });
     }
 
     getViewType(): string {
         return WEB_VIEW_TYPE;
+    }
+
+    navigate(url: string, updateWebview: boolean) {
+        if (updateWebview) {
+            this.webviewEl.src = url;
+        }
+
+        for (const callback of this.navigatedCallbacks) {
+            callback(url);
+        }
+    }
+
+    on(name: "navigated", callback: NavigatedCallback) {
+        this.navigatedCallbacks.push(callback);
     }
 }
