@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import BifrostPlugin from "../main";
+import Widget from "./widget";
 
-declare module "obsidian" {
-    interface App {
-        plugins: {
-            plugins: {
-                bifrost: BifrostPlugin
-            }
-        }
-    }
-    interface View {
-        headerEl: HTMLDivElement;
+export default class SearchWidget extends Widget {
+    private inputEl: HTMLInputElement;
+
+    create(): HTMLElement {
+        this.inputEl = document.createElement("input");
+        this.inputEl.addClass("bifrost-search-widget");
+        this.inputEl.type = "text";
+        this.inputEl.placeholder = "Search with DuckDuckGo or enter address";
+
+        return this.inputEl;
     }
 }

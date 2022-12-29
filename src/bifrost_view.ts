@@ -17,11 +17,13 @@
  */
 import { ItemView } from "obsidian";
 import BifrostPlugin from "./main";
+import WidgetBar from "./widgets/widget_bar";
 
 export const BIFROST_VIEW_TYPE = "bifrost-view";
 
 export class BifrostView extends ItemView {
     private webview: Electron.WebviewTag;
+    private widgetBar: WidgetBar;
 
     static async spawnBifrostView(newLeaf: boolean) {
         await app.workspace.getLeaf(newLeaf).setViewState({ type: BIFROST_VIEW_TYPE });
@@ -29,12 +31,15 @@ export class BifrostView extends ItemView {
 
     async onOpen() {
         this.contentEl.addClass("bifrost-view-content");
+        this.navigation = true;
 
         this.webview = document.createElement("webview");
         this.webview.addClass("bifrost-webview");
         this.contentEl.appendChild(this.webview);
 
         this.webview.setAttribute("src", BifrostPlugin.get().settings.url);
+
+        this.widgetBar = new WidgetBar(this);
     }
 
     getDisplayText(): string {

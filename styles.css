@@ -10,3 +10,11 @@
     background-color: white;
     background-clip: content-box;
 }
+
+.bifrost-widget-bar::after {
+    background: transparent !important;
+}
+
+.bifrost-search-widget {
+    width: 100%;
+}

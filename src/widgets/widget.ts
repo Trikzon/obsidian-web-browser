@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import BifrostPlugin from "../main";
+import WidgetBar from "./widget_bar";
+import { View } from "obsidian";
 
-declare module "obsidian" {
-    interface App {
-        plugins: {
-            plugins: {
-                bifrost: BifrostPlugin
-            }
-        }
+export default abstract class Widget {
+    protected readonly view: View;
+    protected readonly widgetBar: WidgetBar;
+
+    constructor(view: View, widgetBar: WidgetBar) {
+        this.view = view;
+        this.widgetBar = widgetBar;
     }
-    interface View {
-        headerEl: HTMLDivElement;
-    }
+
+    abstract create(): HTMLElement;
 }
