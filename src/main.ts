@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Plugin } from "obsidian";
-import { BIFROST_VIEW_TYPE, BifrostView } from "./bifrost_view";
+import { WEB_VIEW_TYPE, WebView } from "./views/web_view";
 import { BifrostSettings, BifrostSettingTab, DEFAULT_SETTINGS } from "./settings";
 
 export default class BifrostPlugin extends Plugin {
@@ -39,12 +39,12 @@ export default class BifrostPlugin extends Plugin {
         //     console.log("Loaded chrome extension with id: " + id);
         // });
 
-        this.registerView(BIFROST_VIEW_TYPE, (leaf) => new BifrostView(leaf));
+        this.registerView(WEB_VIEW_TYPE, (leaf) => new WebView(leaf, "Bifröst"));
         this.addCommand({
             id: "test",
             name: "Test",
             callback: () => {
-                BifrostView.spawnBifrostView(false);
+                WebView.spawnBifrostView(false);
             }
         })
 	}

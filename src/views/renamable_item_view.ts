@@ -15,20 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import BifrostPlugin from "../main";
+import { ItemView, WorkspaceLeaf } from "obsidian";
 
-declare module "obsidian" {
-    interface App {
-        plugins: {
-            plugins: {
-                bifrost: BifrostPlugin
-            }
-        }
+export default abstract class RenamableItemView extends ItemView {
+    public displayName: string;
+
+    constructor(leaf: WorkspaceLeaf, displayName: string) {
+        super(leaf);
+        this.displayName = displayName;
     }
-    interface View {
-        headerEl: HTMLDivElement;
+
+    public rename(displayName: string) {
+        this.displayName = displayName;
+        console.log(this.leaf);
+        this.leaf.tabHeaderInnerTitleEl.innerText = displayName;
     }
-    interface WorkspaceLeaf {
-        tabHeaderInnerTitleEl: HTMLDivElement;
+
+    getDisplayText(): string {
+        return this.displayName;
     }
 }

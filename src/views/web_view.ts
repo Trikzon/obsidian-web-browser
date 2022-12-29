@@ -15,38 +15,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { ItemView } from "obsidian";
-import BifrostPlugin from "./main";
-import WidgetBar from "./widgets/widget_bar";
+import BifrostPlugin from "../main";
+import WidgetBar from "../widgets/widget_bar";
+import RenamableItemView from "./renamable_item_view";
 
-export const BIFROST_VIEW_TYPE = "bifrost-view";
+export const WEB_VIEW_TYPE = "bifrost-web-view";
 
-export class BifrostView extends ItemView {
-    private webview: Electron.WebviewTag;
+export class WebView extends RenamableItemView {
+    private webviewEl: Electron.WebviewTag;
     private widgetBar: WidgetBar;
 
     static async spawnBifrostView(newLeaf: boolean) {
-        await app.workspace.getLeaf(newLeaf).setViewState({ type: BIFROST_VIEW_TYPE });
+        await app.workspace.getLeaf(newLeaf).setViewState({ type: WEB_VIEW_TYPE });
     }
 
     async onOpen() {
         this.contentEl.addClass("bifrost-view-content");
         this.navigation = true;
 
-        this.webview = document.createElement("webview");
-        this.webview.addClass("bifrost-webview");
-        this.contentEl.appendChild(this.webview);
+        this.webviewEl = document.createElement("webview");
+        this.webviewEl.addClass("bifrost-webview");
+        this.contentEl.appendChild(this.webviewEl);
 
-        this.webview.setAttribute("src", BifrostPlugin.get().settings.url);
+        this.webviewEl.setAttribute("src", BifrostPlugin.get().settings.url);
+
+        this.webviewEl.addEventListener("page-title-updated", (event: Electron.PageTitleUpdatedEvent) => {
+            this.rename(event.title);
+        });
 
         this.widgetBar = new WidgetBar(this);
     }
 
-    getDisplayText(): string {
-        return "Bifröst";
-    }
-
     getViewType(): string {
-        return BIFROST_VIEW_TYPE;
+        return WEB_VIEW_TYPE;
     }
 }
