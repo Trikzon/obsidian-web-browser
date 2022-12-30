@@ -46,6 +46,9 @@ export class WebView extends RenamableItemView implements Navigable {
 
         this.widgetBar = new WidgetBar(this);
 
+        this.webviewEl.addEventListener("focus", (_: FocusEvent) => {
+            app.workspace.setActiveLeaf(this.leaf);
+        });
         this.webviewEl.addEventListener("page-title-updated", (event: Electron.PageTitleUpdatedEvent) => {
             this.rename(event.title);
         });
@@ -63,6 +66,22 @@ export class WebView extends RenamableItemView implements Navigable {
 
                 return { action: "deny" };
             })
+
+            // Get the keyboard events from the webview and dispatch it to Obsidian.
+            // Credit to @Quorafind on GitHub who submitted this as a PR before Bifröst rewrite.
+            contents.on("before-input-event", (event: Electron.Event, input: Electron.Input) => {
+                if (input.type !== "keyDown") { return; }
+
+                activeDocument.body.dispatchEvent(new KeyboardEvent("keydown", {
+                    code: input.code,
+                    key: input.key,
+                    shiftKey: input.shift,
+                    altKey: input.alt,
+                    ctrlKey: input.control,
+                    metaKey: input.meta,
+                    repeat: input.isAutoRepeat
+                }));
+            });
         });
     }
 
