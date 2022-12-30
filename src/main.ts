@@ -30,9 +30,6 @@ export default class BifrostPlugin extends Plugin {
 	async onload() {
         await this.loadSettings();
         this.addSettingTab(new BifrostSettingTab(app, this));
-        app.vault.on("create", () => {
-
-        });
 
         // TODO: Support Chrome extensions
         // const path = "/Users/diontryban/Library/Mobile Documents/com~apple~CloudDocs/Documents/Projects/Dev Vault/.obsidian/plugins/bifrost-browser/extensions/darkreader-chrome-mv3"
@@ -44,13 +41,6 @@ export default class BifrostPlugin extends Plugin {
         // });
 
         this.registerView(WEB_VIEW_TYPE, (leaf) => new WebView(leaf, "Bifröst"));
-        this.addCommand({
-            id: "test",
-            name: "Test",
-            callback: () => {
-                WebView.spawn(false, { url: this.settings.url });
-            }
-        });
 
         // Add widget bar to empty views.
         app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
