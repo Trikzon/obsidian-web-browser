@@ -33,7 +33,7 @@ export default class SearchWidget extends Widget {
 
             this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
                 if (event.key === "Enter") {
-                    navigable.navigate(this.inputEl.value, true);
+                    navigable.navigate(this.sanitizeSearch(this.inputEl.value), true);
                 }
             }, false);
 
@@ -43,11 +43,29 @@ export default class SearchWidget extends Widget {
         } else {
             this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
                 if (event.key === "Enter") {
-                    WebView.spawn(event.metaKey, { url: this.inputEl.value });
+                    WebView.spawn(event.metaKey, { url: this.sanitizeSearch(this.inputEl.value) });
                 }
             }, false);
         }
 
         return this.inputEl;
+    }
+
+    private sanitizeSearch(search: string): string {
+        let url: URL;
+        try {
+            url = new URL(search);
+        } catch {
+            url = new URL("https://" + search);
+        }
+
+        // If the search is [non-whitespace characters] + "." + [non-whitespace characters], treat it as a URL.
+        // Otherwise, treat it as a search query for a search engine.
+        const matches = url.host.match(/\S+\.\S+/g);
+        if (!(matches && matches[0] === url.host)) {
+            url = new URL(search, "https://duckduckgo.com/?q=");
+        }
+
+        return url.href;
     }
 }
