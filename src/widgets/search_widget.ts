@@ -17,6 +17,7 @@
  */
 import Widget from "./widget";
 import { isNavigable, Navigable } from "../views/navigable";
+import { WebView } from "../views/web_view";
 
 export default class SearchWidget extends Widget {
     private inputEl: HTMLInputElement;
@@ -39,6 +40,12 @@ export default class SearchWidget extends Widget {
             navigable.on("navigated", (url: string) => {
                 this.inputEl.value = url;
             });
+        } else {
+            this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
+                if (event.key === "Enter") {
+                    WebView.spawn(event.metaKey, { url: this.inputEl.value });
+                }
+            }, false);
         }
 
         return this.inputEl;

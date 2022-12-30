@@ -15,9 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { Plugin } from "obsidian";
+import { ItemView, Plugin, View, WorkspaceLeaf } from "obsidian";
 import { WEB_VIEW_TYPE, WebView } from "./views/web_view";
 import { BifrostSettings, BifrostSettingTab, DEFAULT_SETTINGS } from "./settings";
+import WidgetBar from "./widgets/widget_bar";
 
 export default class BifrostPlugin extends Plugin {
     public settings: BifrostSettings;
@@ -49,10 +50,34 @@ export default class BifrostPlugin extends Plugin {
             callback: () => {
                 WebView.spawn(false, { url: this.settings.url });
             }
-        })
-	}
+        });
 
-	onunload() { }
+        // Add widget bar to empty views.
+        app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
+            this.addWidgetBarToEmptyView(leaf.view);
+        });
+        this.registerEvent(app.workspace.on("layout-change", () => {
+            const view = this.app.workspace.getActiveViewOfType(ItemView);
+            if (view) { this.addWidgetBarToEmptyView(view); }
+        }));
+    }
+
+    private addWidgetBarToEmptyView(view: View) {
+        if (view && view.hasOwnProperty("emptyStateEl")) {
+            if (!view.headerEl.find(".bifrost-widget-bar")) {
+                new WidgetBar(view);
+            }
+        }
+    }
+
+    onunload() {
+        // Cleanup widget bars from all empty views.
+        app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
+            if (leaf.view.hasOwnProperty("emptyStateEl")) {
+                leaf.detach();
+            }
+        });
+    }
 
     async loadSettings() {
         this.settings = Object.assign(
