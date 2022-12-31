@@ -18,6 +18,7 @@
 import Widget from "./widget";
 import { isNavigable, Navigable } from "../views/navigable";
 import { WebView } from "../views/web_view";
+import { BifrostSettings } from "../settings/settings";
 
 export default class SearchWidget extends Widget {
     private inputEl: HTMLInputElement;
@@ -26,7 +27,7 @@ export default class SearchWidget extends Widget {
         this.inputEl = document.createElement("input");
         this.inputEl.addClass("bifrost-search-widget");
         this.inputEl.type = "text";
-        this.inputEl.placeholder = "Search with DuckDuckGo or enter address";
+        this.inputEl.placeholder = `Search with ${BifrostSettings.get().getActiveSearchEngine().name} or enter address`;
 
         if (isNavigable(this.view)) {
             const navigable: Navigable = this.view;
@@ -63,7 +64,7 @@ export default class SearchWidget extends Widget {
         // Otherwise, treat it as a search query for a search engine.
         const matches = url.host.match(/\S+\.\S+/g);
         if (!(matches && matches[0] === url.host)) {
-            url = new URL(search, "https://duckduckgo.com/?q=");
+            url = new URL(BifrostSettings.get().getActiveSearchEngine().info.queryUrl + search);
         }
 
         return url.href;

@@ -15,34 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import {App, PluginSettingTab, Setting, TextComponent} from "obsidian";
-import BifrostPlugin from "./main";
-
-export interface BifrostSettings {
-    url: string,
-}
-
-export const DEFAULT_SETTINGS: Partial<BifrostSettings> = {
-    url: "https://duckduckgo.com",
-};
+import { DropdownComponent, PluginSettingTab, Setting } from "obsidian";
+import { BifrostSettings } from "./settings";
 
 export class BifrostSettingTab extends PluginSettingTab {
-    private plugin: BifrostPlugin;
-
-    constructor(app: App, plugin: BifrostPlugin) {
-        super(app, plugin);
-        this.plugin = plugin;
-    }
-
     display() {
+        const settings = BifrostSettings.get();
         new Setting(this.containerEl)
-            .setName("Default url")
-            .setDesc("Temporary setting for testing.")
-            .addText((component: TextComponent) => {
-                component.setValue(this.plugin.settings.url);
+            .setName("Search Engine")
+            .setDesc("")
+            .addDropdown((component: DropdownComponent) => {
+                for (const name of Object.keys(settings.searchEngines)) {
+                    component.addOption(name, name);
+                }
+                component.setValue(settings.searchEngine);
+
                 component.onChange((value: string) => {
-                    this.plugin.settings.url = value;
-                    this.plugin.saveSettings();
+                    settings.searchEngine = value;
+                    settings.save();
                 });
             });
     }

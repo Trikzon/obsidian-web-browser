@@ -17,19 +17,16 @@
  */
 import { ItemView, Plugin, View, WorkspaceLeaf } from "obsidian";
 import { WEB_VIEW_TYPE, WebView } from "./views/web_view";
-import { BifrostSettings, BifrostSettingTab, DEFAULT_SETTINGS } from "./settings";
+import { BifrostSettings } from "./settings/settings";
 import WidgetBar from "./widgets/widget_bar";
 
 export default class BifrostPlugin extends Plugin {
-    public settings: BifrostSettings;
-
     static get(): BifrostPlugin {
         return app.plugins.plugins["bifrost"];
     }
 
 	async onload() {
-        await this.loadSettings();
-        this.addSettingTab(new BifrostSettingTab(app, this));
+        await BifrostSettings.load();
 
         // TODO: Support Chrome extensions
         // const path = "/Users/diontryban/Library/Mobile Documents/com~apple~CloudDocs/Documents/Projects/Dev Vault/.obsidian/plugins/bifrost-browser/extensions/darkreader-chrome-mv3"
@@ -67,18 +64,5 @@ export default class BifrostPlugin extends Plugin {
                 leaf.detach();
             }
         });
-    }
-
-    async loadSettings() {
-        this.settings = Object.assign(
-            {},
-            DEFAULT_SETTINGS,
-            await this.loadData()
-        );
-        await this.saveSettings();
-    }
-
-    async saveSettings() {
-        await this.saveData(this.settings);
     }
 }
