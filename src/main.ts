@@ -58,6 +58,8 @@ export default class BifrostPlugin extends Plugin {
     }
 
     onunload() {
+        this.app.workspace.detachLeavesOfType(WEB_VIEW_TYPE);
+
         // Cleanup widget bars from all empty views.
         app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
             if (leaf.view.hasOwnProperty("emptyStateEl")) {

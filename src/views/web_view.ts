@@ -61,11 +61,13 @@ export class WebView extends RenamableItemView implements Navigable {
         this.webviewEl.addEventListener("dom-ready", (_: Event) => {
             const contents = webContents.fromId(this.webviewEl.getWebContentsId());
 
+            // TODO: Fix bug where when the plugin is disabled and re-enabled, already opened WebViews have duplicated
+            // setWindowOpenHandler implementations causing multiple tabs to be opened.
             contents.setWindowOpenHandler((details: Electron.HandlerDetails) => {
                 WebView.spawn(true, { url: details.url });
 
                 return { action: "deny" };
-            })
+            });
 
             // Get the keyboard events from the webview and dispatch it to Obsidian.
             // Credit to @Quorafind on GitHub who submitted this as a PR before Bifröst rewrite.
