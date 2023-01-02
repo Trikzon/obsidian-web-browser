@@ -112,4 +112,8 @@ export class WebView extends RenamableItemView implements Navigable {
     on(name: "navigated", callback: NavigatedCallback) {
         this.navigatedCallbacks.push(callback);
     }
+
+    getUrl(): string {
+        return this.webviewEl.src;
+    }
 }

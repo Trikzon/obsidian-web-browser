@@ -16,32 +16,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { View } from "obsidian";
-import Widget from "./widget";
+import { Widget } from "./widget";
 import SearchWidget from "./search_widget";
+import { ExternalBrowserWidget } from "./external_browser_widget";
 
 export default class WidgetBar {
     private readonly view: View;
-    private readonly widgetBarEl: HTMLDivElement;
-    private readonly widgets: Array<Widget> = new Array<Widget>();
+    private readonly leftWidgetContainer: HTMLDivElement;
+    private readonly centerWidgetContainer: HTMLDivElement;
+    private readonly rightWidgetContainer: HTMLDivElement;
 
     constructor(view: View) {
         this.view = view;
 
-        this.widgetBarEl = view.headerEl.find(".view-header-title-container") as HTMLDivElement;
-        this.widgetBarEl.empty();
-        this.widgetBarEl.addClass("bifrost-widget-bar");
+        this.leftWidgetContainer = view.headerEl.find(".view-header-nav-buttons") as HTMLDivElement;
+        this.leftWidgetContainer.addClass("bifrost-left-widget-container");
+
+        this.centerWidgetContainer = view.headerEl.find(".view-header-title-container") as HTMLDivElement;
+        this.centerWidgetContainer.empty();
+        this.centerWidgetContainer.addClass("bifrost-center-widget-container");
+
+        this.rightWidgetContainer = view.headerEl.find(".view-actions") as HTMLDivElement;
+        this.rightWidgetContainer.addClass("bifrost-right-widget-container");
 
         this.addWidgets();
-        this.registerWidgets();
     }
 
     private addWidgets() {
-        this.widgets.push(new SearchWidget(this.view, this));
+        this.addWidget(new SearchWidget(this.view, this), "center");
+
+        this.addWidget(new ExternalBrowserWidget(this.view, this), "right");
     }
 
-    private registerWidgets() {
-        for (const widget of this.widgets) {
-            this.widgetBarEl.appendChild(widget.create());
+    public addWidget(widget: Widget, location: "left" | "center" | "right") {
+        switch (location) {
+            case "left":
+                this.leftWidgetContainer.appendChild(widget.create()); break;
+            case "center":
+                this.centerWidgetContainer.appendChild(widget.create()); break;
+            case "right":
+                this.rightWidgetContainer.prepend(widget.create()); break;
         }
     }
 }

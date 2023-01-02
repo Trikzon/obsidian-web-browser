@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import WidgetBar from "./widget_bar";
-import { View } from "obsidian";
 
-export default abstract class Widget {
+import WidgetBar from "./widget_bar";
+import { setIcon, View } from "obsidian";
+
+export abstract class Widget {
     protected readonly view: View;
     protected readonly widgetBar: WidgetBar;
 
@@ -28,4 +29,31 @@ export default abstract class Widget {
     }
 
     abstract create(): HTMLElement;
+}
+
+export abstract class ButtonWidget extends Widget {
+    protected readonly icon: string;
+    protected readonly label: string;
+    protected buttonEl: HTMLAnchorElement;
+
+    protected constructor(view: View, widgetBar: WidgetBar, icon: string, label: string) {
+        super(view, widgetBar);
+        this.icon = icon;
+        this.label = label;
+    }
+
+    create(): HTMLElement {
+        this.buttonEl = document.createElement("a");
+        this.buttonEl.addClass("clickable-icon");
+        this.buttonEl.addClass("view-action");
+        this.buttonEl.addClass("bifrost-button-widget");
+        this.buttonEl.ariaLabel = this.label;
+        setIcon(this.buttonEl, this.icon);
+
+        this.buttonEl.addEventListener("click", (event: MouseEvent) => { this.onClicked(event) });
+
+        return this.buttonEl;
+    }
+
+    protected abstract onClicked(event: MouseEvent): void;
 }

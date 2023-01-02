@@ -11,8 +11,8 @@
     background-clip: content-box;
 }
 
-.bifrost-widget-bar::after {
-    background: transparent !important;
+.bifrost-center-widget-container::after {
+    display: none;
 }
 
 .bifrost-search-widget {

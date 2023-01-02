@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import Widget from "./widget";
+import { Widget } from "./widget";
 import { isNavigable, Navigable } from "../views/navigable";
 import { WebView } from "../views/web_view";
 import { BifrostSettings } from "../settings/settings";

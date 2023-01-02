@@ -16,19 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export type NavigatedCallback = (url: string) => void;
+import { ButtonWidget } from "./widget";
+import { View } from "obsidian";
+import WidgetBar from "./widget_bar";
+import { isNavigable } from "../views/navigable";
 
-export interface Navigable {
-    navigate(url: string, updateWebview: boolean): void;
-    on(name: "navigated", callback: NavigatedCallback): void;
-    getUrl(): string;
-}
+export class ExternalBrowserWidget extends ButtonWidget {
+    constructor(view: View, widgetBar: WidgetBar) {
+        super(view, widgetBar, "external-link", "Open in external browser");
+    }
 
-export function isNavigable(instance: any): instance is Navigable {
-    try {
-        return "navigate" in instance && typeof instance.navigate === "function"
-            && "on" in instance && typeof instance.on === "function";
-    } catch { // If instance is a primitive type, it will cause an error.
-        return false;
+    protected onClicked(event: MouseEvent): void {
+        if (isNavigable(this.view)) {
+            window.open(this.view.getUrl());
+        }
     }
 }
