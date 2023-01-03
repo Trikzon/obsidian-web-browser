@@ -53,10 +53,10 @@ export class WebView extends RenamableItemView implements Navigable {
             this.rename(event.title);
         });
         this.webviewEl.addEventListener("will-navigate", (event: Electron.WillNavigateEvent) => {
-            this.navigate(event.url, false);
+            this.navigate(event.url, true, false);
         });
         this.webviewEl.addEventListener("did-navigate-in-page", (event: Electron.DidNavigateInPageEvent) => {
-            this.navigate(event.url, false);
+            this.navigate(event.url, true, false);
         });
         this.webviewEl.addEventListener("dom-ready", (_: Event) => {
             const contents = webContents.fromId(this.webviewEl.getWebContentsId());
@@ -88,7 +88,7 @@ export class WebView extends RenamableItemView implements Navigable {
     }
 
     async setState(state: WebViewState, result: ViewStateResult) {
-        this.navigate(state.url, true);
+        this.navigate(state.url, false, true);
     }
 
     getState(): WebViewState {
@@ -99,14 +99,50 @@ export class WebView extends RenamableItemView implements Navigable {
         return WEB_VIEW_TYPE;
     }
 
-    navigate(url: string, updateWebview: boolean) {
+    navigate(url: string, addToHistory: boolean, updateWebview: boolean) {
+        if (addToHistory) {
+            // TODO: Replace all references to a url as a string with a URL object.
+            const newUrl = new URL(url);
+            const currentUrl = new URL(this.getUrl());
+
+            // Add current URL to history if new host is different.
+            if (newUrl.host !== currentUrl.host) {
+                this.addToHistory();
+            // Add current URL to history if new pathname is different.
+            } else if (newUrl.pathname !== currentUrl.pathname) {
+                this.addToHistory();
+            } else {
+                const newFirstSearchParam = newUrl.searchParams.entries().next().value;
+                const currentFirstSearchParam = currentUrl.searchParams.entries().next().value;
+
+                // TODO: Assess whether this is a good way of doing this.
+                // Add current URL to history if new first search parameter is different.
+                // This allows urls such as https://duckduckgo.com/?q=test and https://duckduckgo.com/?q=test&ia=definition
+                // to not repeatedly be added to the history, but https://duckduckgo.com/?q=example will.
+                if (newFirstSearchParam[0] !== currentFirstSearchParam[0] || newFirstSearchParam[1] !== currentFirstSearchParam[1]) {
+                    this.addToHistory();
+                }
+            }
+        }
         if (updateWebview) {
             this.webviewEl.src = url;
         }
-
         for (const callback of this.navigatedCallbacks) {
             callback(url);
         }
+    }
+
+    private addToHistory() {
+        console.log(this.getUrl());
+        this.leaf.history.backHistory.push({
+            state: {
+                type: WEB_VIEW_TYPE,
+                state: this.getState()
+            },
+            title: this.displayName,
+            icon: "search"
+        });
+        this.headerEl.children[1].children[0].setAttribute("aria-disabled", "false");
     }
 
     on(name: "navigated", callback: NavigatedCallback) {

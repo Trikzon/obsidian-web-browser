@@ -19,7 +19,7 @@
 export type NavigatedCallback = (url: string) => void;
 
 export interface Navigable {
-    navigate(url: string, updateWebview: boolean): void;
+    navigate(url: string, addToHistory: boolean, updateWebview: boolean): void;
     on(name: "navigated", callback: NavigatedCallback): void;
     getUrl(): string;
 }

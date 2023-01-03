@@ -33,8 +33,8 @@ export default class SearchWidget extends Widget {
             const navigable: Navigable = this.view;
 
             this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
-                if (event.key === "Enter") {
-                    navigable.navigate(this.sanitizeSearch(this.inputEl.value), true);
+                if (this.inputEl.value !== "" &&event.key === "Enter") {
+                    navigable.navigate(this.sanitizeSearch(this.inputEl.value), true, true);
                 }
             }, false);
 
@@ -43,7 +43,8 @@ export default class SearchWidget extends Widget {
             });
         } else {
             this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
-                if (event.key === "Enter") {
+                if (this.inputEl.value !== "" && event.key === "Enter") {
+                    // TODO: Fix event.metaKey never being true on MacOS.
                     WebView.spawn(event.metaKey, { url: this.sanitizeSearch(this.inputEl.value) });
                 }
             }, false);
