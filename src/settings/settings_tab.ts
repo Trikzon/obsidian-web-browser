@@ -21,6 +21,8 @@ import { BifrostSettings } from "./settings";
 export class BifrostSettingTab extends PluginSettingTab {
     display() {
         const settings = BifrostSettings.get();
+
+        // TODO: Create different tabs of settings (e.g. Chrome or Firefox Settings)
         new Setting(this.containerEl)
             .setName("Search Engine")
             .setDesc("")

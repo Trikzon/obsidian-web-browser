@@ -19,6 +19,7 @@ import { ItemView, Plugin, View, WorkspaceLeaf } from "obsidian";
 import { WEB_VIEW_TYPE, WebView } from "./views/web_view";
 import { BifrostSettings } from "./settings/settings";
 import WidgetBar from "./widgets/widget_bar";
+import { around } from "monkey-around";
 
 export default class BifrostPlugin extends Plugin {
     static get(): BifrostPlugin {
@@ -46,6 +47,34 @@ export default class BifrostPlugin extends Plugin {
         this.registerEvent(app.workspace.on("layout-change", () => {
             const view = this.app.workspace.getActiveViewOfType(ItemView);
             if (view) { this.addWidgetBarToEmptyView(view); }
+        }));
+
+        // Patch the window.open function to open external links inside Bifröst's WebView.
+        // TODO: Somehow override anchor tags with target="_blank".
+        // @ts-ignore
+        this.register(around(window, {
+            open(old) {
+                return function(url?: string | URL, target?: string, features?: string): WindowProxy | null {
+                    if (!url) { return old(url, target, features); }
+
+                    // Convert url to type URL.
+                    const urlUrl: URL = typeof url === "string" ? new URL(url) : url;
+
+                    // Allows Obsidian to open a popup window if url is "about:blank" and features is not null.
+                    // TODO: Find out if there's a better way to detect a popup window.
+                    if (urlUrl.toString() === "about:blank" && features) {
+                        return old(url, target, features);
+                    }
+
+                    // Allow Obsidian to open non-web urls outside Bifröst's WebView.
+                    if (urlUrl.protocol !== "http:" && urlUrl.protocol !== "https:") {
+                        return old(url, target, features);
+                    }
+
+                    WebView.spawn(true, { url: urlUrl.toString() });
+                    return null;
+                }
+            }
         }));
     }
 
