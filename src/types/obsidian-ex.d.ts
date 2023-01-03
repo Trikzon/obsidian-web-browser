@@ -25,10 +25,22 @@ declare module "obsidian" {
             }
         }
     }
+    interface History {
+        state: {
+            type: string,
+            state: any
+        },
+        title: string,
+        icon: string
+    }
     interface View {
         headerEl: HTMLDivElement;
     }
     interface WorkspaceLeaf {
+        history: {
+            backHistory: Array<History>,
+            forwardHistory: Array<History>
+        },
         tabHeaderInnerTitleEl: HTMLDivElement;
     }
 }
