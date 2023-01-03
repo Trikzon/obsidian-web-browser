@@ -123,12 +123,17 @@ export class WebView extends RenamableItemView implements Navigable {
                 const newFirstSearchParam = newUrl.searchParams.entries().next().value;
                 const currentFirstSearchParam = currentUrl.searchParams.entries().next().value;
 
-                // TODO: Assess whether this is a good way of doing this.
-                // Add current URL to history if new first search parameter is different.
-                // This allows urls such as https://duckduckgo.com/?q=test and https://duckduckgo.com/?q=test&ia=definition
-                // to not repeatedly be added to the history, but https://duckduckgo.com/?q=example will.
-                if (newFirstSearchParam[0] !== currentFirstSearchParam[0] || newFirstSearchParam[1] !== currentFirstSearchParam[1]) {
+                // Add current URL to history if one has search params but the other doesn't.
+                if (!newFirstSearchParam !== !currentFirstSearchParam) {
                     this.addToHistory();
+                } else if (newFirstSearchParam && currentFirstSearchParam) {
+                    // TODO: Assess whether this is a good way of doing this.
+                    // Add current URL to history if new first search parameter is different.
+                    // This allows urls such as https://duckduckgo.com/?q=test and https://duckduckgo.com/?q=test&ia=definition
+                    // to not repeatedly be added to the history, but https://duckduckgo.com/?q=example will.
+                    if (newFirstSearchParam[0] !== currentFirstSearchParam[0] || newFirstSearchParam[1] !== currentFirstSearchParam[1]) {
+                        this.addToHistory();
+                    }
                 }
             }
         }
