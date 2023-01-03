@@ -16,9 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import BifrostPlugin from "../main";
+import { Command } from "obsidian";
 
 declare module "obsidian" {
     interface App {
+        commands: {
+            commands: {
+                [id: string]: Command
+            }
+        },
         plugins: {
             plugins: {
                 bifrost: BifrostPlugin

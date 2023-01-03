@@ -1,6 +1,6 @@
 /*
  * This file is part of obsidian-bifrost. (https://github.com/trikzon/obsidian-bifrost)
- * Copyright (C) 2022 Dion Tryban (aka Trikzon)
+ * Copyright (C) 2023 Dion Tryban (aka Trikzon)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Widget } from "./widget";
-import { isNavigable, Navigable } from "../views/navigable";
-import { WebView } from "../views/web_view";
-import { BifrostSettings } from "../settings/settings";
+import { isNavigable, Navigable } from "../../views/navigable";
+import { WebView } from "../../views/web_view";
+import { BifrostSettings } from "../../settings/settings";
 
 export default class SearchWidget extends Widget {
     private inputEl: HTMLInputElement;

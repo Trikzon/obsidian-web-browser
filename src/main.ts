@@ -18,7 +18,7 @@
 import { ItemView, Plugin, View, WorkspaceLeaf } from "obsidian";
 import { WEB_VIEW_TYPE, WebView } from "./views/web_view";
 import { BifrostSettings } from "./settings/settings";
-import WidgetBar from "./widgets/widget_bar";
+import WidgetBar from "./bars/widget/widget_bar";
 import { around } from "monkey-around";
 
 export default class BifrostPlugin extends Plugin {
@@ -73,6 +73,25 @@ export default class BifrostPlugin extends Plugin {
 
                     WebView.spawn(true, { url: urlUrl.toString() });
                     return null;
+                }
+            }
+        }));
+
+        app.workspace.onLayoutReady(() => this.onLayoutReady());
+    }
+
+    private onLayoutReady() {
+        this.register(around(app.commands.commands["editor:open-search"], {
+            checkCallback(old) {
+                return function(checking: boolean): boolean | void {
+                    const view = app.workspace.getActiveViewOfType(WebView);
+                    if (!view) { return old ? old(checking) : false; }
+
+                    if (!checking) {
+                        view.findBar.toggle();
+                    }
+
+                    return true;
                 }
             }
         }));

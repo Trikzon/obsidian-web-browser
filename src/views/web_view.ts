@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import WidgetBar from "../widgets/widget_bar";
+import WidgetBar from "../bars/widget/widget_bar";
 import RenamableItemView from "./renamable_item_view";
 import { Navigable, NavigatedCallback } from "./navigable";
 import { webContents } from "@electron/remote";
 import { ViewStateResult } from "obsidian";
+import { FindBar } from "../bars/find_bar";
 
 export const WEB_VIEW_TYPE = "bifrost-web-view";
 
@@ -29,8 +30,9 @@ export interface WebViewState {
 
 export class WebView extends RenamableItemView implements Navigable {
     private readonly navigatedCallbacks: Array<NavigatedCallback> = new Array<NavigatedCallback>();
-    private webviewEl: Electron.WebviewTag;
+    public webviewEl: Electron.WebviewTag;
     private widgetBar: WidgetBar;
+    public findBar: FindBar;
 
     static async spawn(newLeaf: boolean, state: WebViewState) {
         await app.workspace.getLeaf(newLeaf).setViewState({ type: WEB_VIEW_TYPE, active: true, state });
@@ -45,6 +47,7 @@ export class WebView extends RenamableItemView implements Navigable {
         this.contentEl.appendChild(this.webviewEl);
 
         this.widgetBar = new WidgetBar(this);
+        this.findBar = new FindBar(this);
 
         this.webviewEl.addEventListener("focus", (_: FocusEvent) => {
             app.workspace.setActiveLeaf(this.leaf);
@@ -62,13 +65,15 @@ export class WebView extends RenamableItemView implements Navigable {
             const contents = webContents.fromId(this.webviewEl.getWebContentsId());
 
             // TODO: Fix bug where when the plugin is disabled and re-enabled, already opened WebViews have duplicated
-            // setWindowOpenHandler implementations causing multiple tabs to be opened.
+            //       setWindowOpenHandler implementations causing multiple tabs to be opened.
             contents.setWindowOpenHandler((details: Electron.HandlerDetails) => {
                 WebView.spawn(true, { url: details.url });
 
-                return { action: "deny" };
+                return { action: "allow" };
             });
 
+            // TODO: Fix bug where this event gets fired multiple times when the plugin is disabled and re-enabled.
+            //       Likely the same issue as the contents.setWindowOpenHandler duplicating.
             // Get the keyboard events from the webview and dispatch it to Obsidian.
             // Credit to @Quorafind on GitHub who submitted this as a PR before Bifröst rewrite.
             contents.on("before-input-event", (event: Electron.Event, input: Electron.Input) => {
@@ -83,6 +88,9 @@ export class WebView extends RenamableItemView implements Navigable {
                     metaKey: input.meta,
                     repeat: input.isAutoRepeat
                 }));
+            });
+
+            contents.on("destroyed", () => {
             });
         });
     }
@@ -133,7 +141,6 @@ export class WebView extends RenamableItemView implements Navigable {
     }
 
     private addToHistory() {
-        console.log(this.getUrl());
         this.leaf.history.backHistory.push({
             state: {
                 type: WEB_VIEW_TYPE,

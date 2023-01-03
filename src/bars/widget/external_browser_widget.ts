@@ -1,6 +1,6 @@
 /*
  * This file is part of obsidian-bifrost. (https://github.com/trikzon/obsidian-bifrost)
- * Copyright (C) 2022 Dion Tryban (aka Trikzon)
+ * Copyright (C) 2023 Dion Tryban (aka Trikzon)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 import { ButtonWidget } from "./widget";
 import { View } from "obsidian";
 import WidgetBar from "./widget_bar";
-import { isNavigable } from "../views/navigable";
+import { isNavigable } from "../../views/navigable";
 
 export class ExternalBrowserWidget extends ButtonWidget {
     constructor(view: View, widgetBar: WidgetBar) {
